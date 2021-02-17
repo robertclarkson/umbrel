@@ -1,0 +1,32 @@
+version: "3.7"
+
+x-logging:
+  &default-logging
+  driver: journald
+  options:
+    tag: "umbrel-app {{.Name}}"
+
+services:
+  clightning:
+    image: elementsproject/lightningd
+    container_name: clightning
+    command:
+      - --bitcoin-rpcconnect=$BITCOIN_RPC_HIDDEN_SERVICE_FILE
+      - --bitcoin-rpcuser=$BITCOIN_RPC_USER
+      - --bitcoin-rpcpassword=$BITCOIN_RPC_PASS
+      - --network=regtest
+      - --plugin-dir=/usr/libexec/c-lightning/plugins
+      - --alias=clightningnode
+      - --log-level=debug
+    environment:
+      EXPOSE_TCP: "true"
+    expose:
+      - "9735"
+    ports:
+      - "0.0.0.0:9735:9735"
+    volumes:
+      - "clightning_bitcoin_datadir:/root/.lightning"
+    # links:
+    #   - bitcoind1
+    # networks:
+    #   - LN_testing
